@@ -1,0 +1,43 @@
+/*
+!/.gitignore
+
+# Project File
+!*.xpr
+
+# Constraints
+!/*.srcs/
+/*.srcs/*
+!/*.srcs/constrs_1/
+
+# Block Diagram
+!/*.srcs/sources_1/
+/*.srcs/sources_1/*
+!/*.srcs/sources_1/bd/
+/*.srcs/sources_1/bd/*
+!/*.srcs/sources_1/bd/*/
+/*.srcs/sources_1/bd/*/*
+!/*.srcs/sources_1/bd/*/*.bd
+
+# Block Diagram Wrapper
+!/*.gen/
+/*.gen/*
+!/*.gen/sources_1/
+/*.gen/sources_1/*
+!/*.gen/sources_1/bd/
+/*.gen/sources_1/bd/*
+!/*.gen/sources_1/bd/*/
+/*.gen/sources_1/bd/*/*
+!/*.gen/sources_1/bd/*/hdl/
+
+# Vitis Project
+!/*.vitis/
+/*.vitis/.analytics
+/*.vitis/*.log
+/*.vitis/.metadata/
+/*.vitis/RemoteSystemsTempFiles/
+/*.vitis/*_platform/
+/*.vitis/*_system/
+/*.vitis/*/.project
+/*.vitis/*/.cproject
+/*.vitis/*/*.prj
+/*.vitis/*/_ide
