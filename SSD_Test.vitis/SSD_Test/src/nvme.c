@@ -342,15 +342,15 @@ u16 nvmeGetIOSlip(void)
 	return (u16)(io_cid - io_cid_last_completed - 1);
 }
 
-int nvmeTrim()
+int nvmeTrim(u64 startLBA, u32 numLBA)
 {
 	sqe_prp_type sqe;
 
-	// Use a single large range to deallocate all LBAs.
+	// Use a single range.
 	memset(dsmRange, 0, 4096);
 	dsmRange[0].contextAttributes = 0x00000000;
-	dsmRange[0].start = 0;
-	dsmRange[0].length = nvmeGetLBACount();		// TO-DO: Handle 64b LBA count and obey NPDG.
+	dsmRange[0].start = startLBA;
+	dsmRange[0].length = numLBA;
 
 	memset(&sqe, 0, sizeof(sqe_prp_type));
 	sqe.CID = io_cid;

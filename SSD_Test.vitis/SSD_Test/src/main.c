@@ -10,19 +10,20 @@ NVMe SSD Test Application Main
 #include "xtime_l.h"
 #include "xil_printf.h"
 #include "xil_cache.h"
+#include "xuartps.h"
 #include "sleep.h"
 #include <stdio.h>
 
 #define US_PER_COUNT 1000 / (COUNTS_PER_SECOND / 1000)
 
 // Test Configuration
-#define TRIM_FIRST          0           // 0: Don't TRIM, 1: TRIM before test
-#define TRIM_DELAY          10          // Wait time after TRIM in [min].
+#define TRIM_FIRST          1           // 0: Don't TRIM, 1: TRIM before test
+#define TRIM_DELAY          0           // Extra wait time after TRIM in [min]. 0 = Wait for keypress.
 #define USE_FS              0           // 0: Raw Disk Test, 1: File System Test
 #define TEST_READ           0           // 0: Write, 1: Read (Raw Disk Test Only)
 #define TOTAL_WRITE         1999        // Total write size in [GB].
 #define TARGET_WRITE_RATE   4000        // Target write speed in [MB/s].
-#define TOTAL_READ          500         // Total read size in [GB]. (Raw Disk Test Only)
+#define TOTAL_READ          1999        // Total read size in [GB]. (Raw Disk Test Only)
 #define TARGET_READ_RATE    4000        // Target read speed in [MB/s]. (Raw Disk Test Only)
 #define BLOCK_SIZE          (1 << 16)   // Block size in [B] as a power of 2.
 #define BLOCKS_PER_FILE     16536       // Blocks written per file in FS mode. (File System Test Only)
@@ -99,12 +100,59 @@ void trimWait(u32 trimDelay)
 {
 	char strWorking[128];
 
-	// Trim SSD.
 	xil_printf("Deallocating SSD (TRIM)...\r\n");
-	nvmeTrim();
-	while(nvmeGetIOSlip() > 0)
-	{ nvmeServiceIOCompletions(16); }
+	u32 nLBATrimmed = 0;
+	u32 nLBAToTrim = nvmeGetLBACount();	// Trim the entire drive...
+	u32 nLBAPerTrim = (1 << 17);		// ...in these increments.
+
+	XTime tStart, tNow;
+	u32 sElapsed = 0;
+	float progress = 0.0f;
+
+	XTime_GetTime(&tStart);
+
+	// TRIM loop.
+	while(nLBATrimmed < nLBAToTrim)
+	{
+		if((nLBAToTrim - nLBATrimmed) >= nLBAPerTrim)
+		{
+			nvmeTrim(nLBATrimmed, nLBAPerTrim);
+			while(nvmeGetIOSlip() > 0)
+			{ nvmeServiceIOCompletions(16); }
+			nLBATrimmed += nLBAPerTrim;
+		}
+		else
+		{
+			// Finishing pass, if nLBAToTrim is not a multiple of nLBAPerTrim.
+			nvmeTrim(nLBATrimmed, (nLBAToTrim - nLBATrimmed));
+			while(nvmeGetIOSlip() > 0)
+			{ nvmeServiceIOCompletions(16); }
+			nLBATrimmed = nLBAToTrim;
+		}
+
+		// 1Hz progress update.
+		XTime_GetTime(&tNow);
+		if((tNow - tStart) / COUNTS_PER_SECOND > sElapsed)
+		{
+			sElapsed = (tNow - tStart) / COUNTS_PER_SECOND;
+
+			progress = (float)nLBATrimmed / (float)nLBAToTrim * 100.0f;
+
+			sprintf(strWorking, "TRIM Progress: %3.0f percent...\r\n", progress);
+			xil_printf(strWorking);
+		}
+	}
+
 	xil_printf("Finished deallocating SSD.\r\n");
+
+	if(trimDelay == 0)
+	{
+		xil_printf("Enter S to start test...\r\n");
+		do
+		{
+			while(!XUartPs_IsReceiveData(XUartPs_LookupConfig(XPAR_XUARTPS_0_DEVICE_ID)->BaseAddress));
+		} while (XUartPs_RecvByte(XUartPs_LookupConfig(XPAR_XUARTPS_0_DEVICE_ID)->BaseAddress) != 'S');
+	}
 
 	while(trimDelay)
 	{
