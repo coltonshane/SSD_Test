@@ -336,4 +336,12 @@ typedef struct __attribute__((packed))
 	u8 reserved2[280];
 } logSMARTHealth_type;
 
+// Range Definition for Dataset Management Commands
+typedef struct __attribute__((packed))
+{
+	u32 contextAttributes;
+	u32 length;					// [LBA]
+	u64 start;					// [LBA]
+} dsmRange_type;
+
 #endif

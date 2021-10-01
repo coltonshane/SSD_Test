@@ -103,6 +103,9 @@ idController_type * idController = (idController_type *)(0x10004000);
 idNamespace_type * idNamespace = (idNamespace_type *)(0x10005000);
 logSMARTHealth_type * logSMARTHealth = (logSMARTHealth_type *)(0x10006000);
 
+// Dataset Management Ranges (256 * 16B = 4096B)
+dsmRange_type * dsmRange = (dsmRange_type *)(0x10007000);
+
 // Heap space for PRP lists for IO Transfers.
 // Heap size is (IOSQ_SIZE + 1) * DDR_PAGE_SIZE.
 u64 * prpListHeap = (u64 *)(0x10008000);
@@ -337,6 +340,29 @@ int nvmeServiceIOCompletions(u16 maxCompletions)
 u16 nvmeGetIOSlip(void)
 {
 	return (u16)(io_cid - io_cid_last_completed - 1);
+}
+
+int nvmeTrim()
+{
+	sqe_prp_type sqe;
+
+	// Use a single large range to deallocate all LBAs.
+	memset(dsmRange, 0, 4096);
+	dsmRange[0].contextAttributes = 0x00000000;
+	dsmRange[0].start = 0;
+	dsmRange[0].length = nvmeGetLBACount();		// TO-DO: Handle 64b LBA count and obey NPDG.
+
+	memset(&sqe, 0, sizeof(sqe_prp_type));
+	sqe.CID = io_cid;
+	sqe.OPC = 0x09;
+	sqe.NSID = nsid;
+	sqe.PRP1 = (u64) dsmRange;
+	sqe.CDW10 = 0;   // 0's Based
+	sqe.CDW11 = 0x4; // Deallocate (AD) flag.
+
+	nvmeSubmitIOCommand(&sqe);
+
+	return 0;
 }
 
 // Private Function Definitions ----------------------------------------------------------------------------------------
