@@ -1,6 +1,9 @@
 /*
 !/.gitignore
 
+# Scripts
+!/*.tcl
+
 # Constraints
 !/*.srcs/
 /*.srcs/*
