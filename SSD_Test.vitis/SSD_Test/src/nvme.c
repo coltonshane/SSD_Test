@@ -392,6 +392,16 @@ int nvmeInitController(u32 tTimeout_ms)
 	XTime tStart;
 	u64 capability;
 
+	// I/O Completion Queue Entry Size
+	// TO-DO: This is fixed at 4 in NVMe v1.4, but should be pulled from Identify Controller CQES.
+	*regCC &= ~REG_CC_IOCQES_Msk;
+	*regCC |= (0x4) << REG_CC_IOCQES_Pos;
+
+	// I/O Submission Queue Entry Size
+	// TO-DO: This is fixed at 6 in NVMe v1.4, but should be pulled from Identify Controller SQES.
+	*regCC &= ~REG_CC_IOSQES_Msk;
+	*regCC |= (0x6) << REG_CC_IOSQES_Pos;
+
 	// Arbitration Mechanism: Round Robin
 	*regCC &= ~REG_CC_AMS_Msk;
 	*regCC |= (0x0) << REG_CC_AMS_Pos;

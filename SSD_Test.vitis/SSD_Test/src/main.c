@@ -17,7 +17,7 @@ NVMe SSD Test Application Main
 #define US_PER_COUNT 1000 / (COUNTS_PER_SECOND / 1000)
 
 // Test Configuration
-#define TRIM_FIRST          1           // 0: Don't TRIM, 1: TRIM before test
+#define TRIM_FIRST          0           // 0: Don't TRIM, 1: TRIM before test
 #define TRIM_DELAY          0           // Extra wait time after TRIM in [min]. 0 = Wait for keypress.
 #define USE_FS              0           // 0: Raw Disk Test, 1: File System Test
 #define TEST_READ           0           // 0: Write, 1: Read (Raw Disk Test Only)
