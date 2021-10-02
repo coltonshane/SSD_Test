@@ -23,6 +23,7 @@
 /*.vitis/.analytics
 /*.vitis/*.log
 /*.vitis/.metadata/
+/*.vitis/.Xil/
 /*.vitis/RemoteSystemsTempFiles/
 /*.vitis/*_platform/
 /*.vitis/*_system/
