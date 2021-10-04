@@ -10,6 +10,7 @@ NVMe SSD Test Application Main
 #include "xtime_l.h"
 #include "xil_printf.h"
 #include "xil_cache.h"
+#include "xgpiops.h"
 #include "xuartps.h"
 #include "sleep.h"
 #include <stdio.h>
@@ -38,14 +39,30 @@ void fsWriteTest();
 // Large data buffer in RAM for write source and read destination.
 u8 * const data = (u8 * const) (0x20000000);
 
+// GPIO Global Variables
+XGpioPs Gpio;
+XGpioPs_Config *gpioConfig;
+
 int main()
 {
     // Init
 	init_platform();
     Xil_DCacheDisable();
     xil_printf("NVMe SSD test application started.\r\n");
-    pcieInit();
+    xil_printf("Initializing PCIe and NVMe driver...\r\n");
 
+    // Configure PERST# pin and write it low then high to reset SSD.
+    gpioConfig = XGpioPs_LookupConfig(XPAR_XGPIOPS_0_DEVICE_ID);
+    XGpioPs_CfgInitialize(&Gpio, gpioConfig, gpioConfig->BaseAddr);
+    XGpioPs_SetDirectionPin(&Gpio, 78, 1);	// 78 = EMIO 0 = PERST#
+    XGpioPs_SetOutputEnablePin(&Gpio, 78, 1);
+    XGpioPs_WritePin(&Gpio, 78, 0);
+    usleep(10000);
+    XGpioPs_WritePin(&Gpio, 78, 1);
+
+    // Wait 100ms then initialize PCIe.
+    usleep(100000);
+    pcieInit();
     usleep(10000);
 
     // Start NVMe Driver

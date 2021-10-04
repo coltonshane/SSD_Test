@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x39DF85520309666",
+      "boundary_crc": "0x4EEA98F73328FA95",
       "device": "xczu4ev-sfvc784-1-e",
       "gen_directory": "../../../../SSD_Test.gen/sources_1/bd/SSD_Test",
       "name": "SSD_Test",
@@ -53,25 +53,16 @@
       }
     },
     "ports": {
-      "pcie_perstn": {
-        "type": "rst",
-        "direction": "O",
-        "parameters": {
-          "INSERT_VIP": {
-            "value": "0",
-            "value_src": "default"
-          },
-          "POLARITY": {
-            "value": "ACTIVE_LOW",
-            "value_src": "default"
-          }
-        }
-      },
       "emio_uart0_txd": {
         "direction": "O"
       },
       "emio_uart0_rxd": {
         "direction": "I"
+      },
+      "emio_gpio_o": {
+        "direction": "O",
+        "left": "0",
+        "right": "0"
       }
     },
     "components": {
@@ -664,7 +655,7 @@
             "value": "0x001FFFFF"
           },
           "INS_LOSS_NYQ": {
-            "value": "5"
+            "value": "15"
           },
           "PF0_DEVICE_ID_mqdma": {
             "value": "9034"
@@ -703,7 +694,7 @@
             "value": "AXI_Bridge"
           },
           "ins_loss_profile": {
-            "value": "Chip-to-Chip"
+            "value": "Add-in_Card"
           },
           "mode_selection": {
             "value": "Advanced"
@@ -1011,6 +1002,15 @@
           },
           "PSU__FPD_SLCR__WDT1__ACT_FREQMHZ": {
             "value": "99.999985"
+          },
+          "PSU__GPIO_EMIO_WIDTH": {
+            "value": "1"
+          },
+          "PSU__GPIO_EMIO__PERIPHERAL__ENABLE": {
+            "value": "1"
+          },
+          "PSU__GPIO_EMIO__PERIPHERAL__IO": {
+            "value": "1"
           },
           "PSU__IOU_SLCR__TTC0__ACT_FREQMHZ": {
             "value": "100.000000"
@@ -1372,10 +1372,15 @@
           "proc_sys_reset_0/slowest_sync_clk"
         ]
       },
+      "zynq_ultra_ps_emio_gpio_o": {
+        "ports": [
+          "zynq_ultra_ps/emio_gpio_o",
+          "emio_gpio_o"
+        ]
+      },
       "zynq_ultra_ps_pl_resetn0": {
         "ports": [
           "zynq_ultra_ps/pl_resetn0",
-          "pcie_perstn",
           "proc_sys_reset_0/ext_reset_in",
           "xdma_0/sys_rst_n"
         ]
