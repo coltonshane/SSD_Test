@@ -18,7 +18,7 @@ NVMe SSD Test Application Main
 #define US_PER_COUNT 1000 / (COUNTS_PER_SECOND / 1000)
 
 // Test Configuration
-#define TRIM_FIRST          0           // 0: Don't TRIM, 1: TRIM before test
+#define TRIM_FIRST          1           // 0: Don't TRIM, 1: TRIM before test
 #define TRIM_DELAY          0           // Extra wait time after TRIM in [min]. 0 = Wait for keypress.
 #define USE_FS              0           // 0: Raw Disk Test, 1: File System Test
 #define TEST_READ           0           // 0: Write, 1: Read (Raw Disk Test Only)
@@ -27,8 +27,8 @@ NVMe SSD Test Application Main
 #define TOTAL_READ          1999        // Total read size in [GB]. (Raw Disk Test Only)
 #define TARGET_READ_RATE    4000        // Target read speed in [MB/s]. (Raw Disk Test Only)
 #define BLOCK_SIZE          (1 << 16)   // Block size in [B] as a power of 2.
-#define BLOCKS_PER_FILE     16536       // Blocks written per file in FS mode. (File System Test Only)
-#define FS_AU_SIZE          (1 << 16)   // File system AU size in [B] as a power of 2. (File System Test Only)
+#define BLOCKS_PER_FILE     (1 << 18)   // Blocks written per file in FS mode. (File System Test Only)
+#define FS_AU_SIZE          (1 << 20)   // File system AU size in [B] as a power of 2. (File System Test Only)
 #define NVME_SLIP_ALLOWED   16          // Amount of NVMe commands allowed to be in flight.
 
 void trimWait(u32 waitMin);
